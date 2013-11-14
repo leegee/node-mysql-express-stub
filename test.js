@@ -328,11 +328,11 @@ describe('URIs', function(){
 			body.should.have.property('status');
 			body.should.have.property('results');
 			body.results.length.should.equal(1);
-			body.results[0].should.have.property('affectedRows');
-			body.results[0].affectedRows.should.equal(1);
-			body.results[0].should.have.property('insertId');
+			body.results[0].should.have.keys('id','text');
+			body.results[0].id.should.match(/^\d+$/);
+			body.results[0].text.should.equal( createMe.text );
 			body.status.should.equal(201);
-			insertedId = body.results[0].insertId;
+			insertedId = body.results[0].id;
 			done();
 		});
 	});
