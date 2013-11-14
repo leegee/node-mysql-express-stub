@@ -35,7 +35,7 @@ function testURI (method, path, next){
 	}
 	var req = http.request({
 		hostname:	'localhost',
-		port:		Server.Server.DEFAULT_PORT,
+		port:		Server.DEFAULT_PORT,
 		method:		method,
 		path:		path
 	}, function(res) {
@@ -141,7 +141,7 @@ describe('view', function(){
 
 describe('app config', function(){
 	it('should have a default port of 3000', function(done){
-		Server.Server.DEFAULT_PORT.should.equal(3000);
+		Server.DEFAULT_PORT.should.equal(3000);
 		done();
 	});
 });
@@ -150,12 +150,12 @@ describe('URIs', function(){
 	before (function (done) {
 		var view  = new View();
 		if (view==null) throw 'Could not instantiate view';
-		var model = new Model.Model(
+		var model = new Model(
 			dbConfig,
 			new View()
 		);
 		if (model==null) throw 'Could not instantiate model';
-		APP = new Server.Server( model, view );
+		APP = new Server( model, view );
 		setUpFixtures( done );
 	});
 
