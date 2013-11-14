@@ -212,7 +212,7 @@ describe('URIs', function(){
 				var body = JSON.parse(raw.toString('utf8'));
 				body.should.not.have.property('error');
 				body.should.have.property('results');
-				body.results.length.ok;
+				body.results.should.be.an.instanceOf(Array);
 				body.results[0].should.have.keys('Tables_in_'+TEST_DATABASE);
 				done();
 			});
@@ -273,26 +273,45 @@ describe('URIs', function(){
 		});
 	});
 
-	/*
+	var deletePath = function(existingRecord){
+		return '/'+TEST_TABLE + '/id/' + existingRecord.id
+	};
+
 	it('should delete by column value', function (done) {
 		existingRecord.should.be.an.instanceOf( Object );
-		var uri = 'http://localhost:3000/'+TEST_TABLE
-			+ '/id/' + existingRecord.id;
 
-		testGet(uri, function(body){
+		testURI('DELETE', deletePath(existingRecord), function(body, res){
+			res.statusCode.should.equal(200);
 			body.should.not.have.property('error');
 			body.should.have.property('results');
-			body.results.length.ok;
+			body.results.should.be.an.instanceOf(Array);
+			body.results.length.should.equal(1);
 			body.results[0].should.be.an.instanceOf( Object );
-			done();
-		});
-
-		testGet(uri, function(body){
-			body.should.have.property('error');
+			body.results[0].should.have.property('affectedRows');
+			body.results[0].affectedRows.should.equal(1);
 			done();
 		});
 	});
 
-	*/
+	it('should not get a deleted record', function (done) {
+		testURI('GET', deletePath(existingRecord), function(body, res){
+			res.statusCode.should.equal(200);
+			body.should.not.have.property('error');
+			body.should.have.property('results');
+			body.results.should.be.an.instanceOf(Array);
+			body.results.length.should.equal(0);
+			body.should.have.property('status');
+			body.status.should.be.above(399);
+			body.status.should.be.below(499);
+			done();
+		});
+	});
+
+	it('should not delete by table', function (done) {
+		testURI('DELETE', '/'+TEST_TABLE, function(body, res){
+			res.statusCode.should.equal(404); // should be bad request
+			done();
+		});
+	});
 
 });
