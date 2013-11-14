@@ -37,12 +37,17 @@ function testURI (method, path, next){
 		hostname:	'localhost',
 		port:		Server.DEFAULT_PORT,
 		method:		method,
-		path:		path
+		path:		path,
+		headers:	{
+			'Content-type': 'application/json'
+		}
 	}, function(res) {
 		res.setEncoding('utf8');
 	});
 
-	if (data != null) req.write( data );
+	if (data != null){
+		req.write( JSON.stringify(data) );
+	}
 
 	req.on('response', function (res) {
 		res.should.be.json;
