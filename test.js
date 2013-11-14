@@ -26,16 +26,25 @@ var APP; // The server instance under test.
 
 
 function testURI (method, path, next){
-	console.log('---->'+method+' '+path);
-	http.request({
+	var data;
+	if (typeof path != 'string'){
+		if (!path.hasOwnProperty('path') || !path.hasOwnProperty('data'))
+			throw 'If path arg is an object, supply path and data fields';
+		data = path.data;
+		path = path.path;
+	}
+	var req = http.request({
 		hostname:	'localhost',
 		port:		Server.Server.DEFAULT_PORT,
 		method:		method,
 		path:		path
 	}, function(res) {
 		res.setEncoding('utf8');
-	})
-	.on('response', function (res) {
+	});
+
+	if (data != null) req.write( data );
+
+	req.on('response', function (res) {
 		res.should.be.json;
 		var rawBody = "";
 		res.on('data', function (chunk) {
@@ -45,8 +54,9 @@ function testURI (method, path, next){
 			rawBody.should.be.type('string');
 			next( JSON.parse(rawBody), res );
 		});
-	})
-	.end();
+	});
+
+	req.end();
 };
 
 function setUpFixtures (done) {
@@ -117,32 +127,14 @@ function populateFixtures(dbh, done, i){
 
 
 describe('view', function(){
-	var view = new View.View();
+	var view = new View();
 	it('should be defined', function (done) {
-		view.should.be.type('function');
+		view.should.be.type('object');
 		done();
 	});
 	it('should return expected struct', function(done){
-		view( [], null ).should.have.keys('results');
-		view( [], {ERROR:true} ).should.have.keys('results','error');
-		done();
-	});
-});
-
-describe('model', function(){
-	it('should accept an inline view', function (done) {
-		var instance = new Model.Model(dbConfig, function(){} );
-		instance.should.be.an.instanceOf(Model.Model);
-		instance.formatResponse.should.be.type('function');
-		instance.should.have.property('pool');
-		done();
-	});
-
-	it('should accept a View class', function (done) {
-		var instance = new Model.Model( dbConfig, new View.View );
-		instance.should.be.an.instanceOf( Model.Model );
-		instance.should.have.property('formatResponse');
-		instance.formatResponse.should.be.type('function');
+		view.formatResults( [], null ).should.have.keys('results');
+		view.formatResults( [], {ERROR:true} ).should.have.keys('results','error');
 		done();
 	});
 });
@@ -156,12 +148,14 @@ describe('app config', function(){
 
 describe('URIs', function(){
 	before (function (done) {
+		var view  = new View();
+		if (view==null) throw 'Could not instantiate view';
 		var model = new Model.Model(
 			dbConfig,
-			new View.View
+			new View()
 		);
-		if (model==null) throw 'Could not build model';
-		APP = new Server.Server( model );
+		if (model==null) throw 'Could not instantiate model';
+		APP = new Server.Server( model, view );
 		setUpFixtures( done );
 	});
 
@@ -310,6 +304,20 @@ describe('URIs', function(){
 	it('should not delete by table', function (done) {
 		testURI('DELETE', '/'+TEST_TABLE, function(body, res){
 			res.statusCode.should.equal(404); // should be bad request
+			done();
+		});
+	});
+
+	it('should create a new entry', function(done){
+		var createMe = { text: 'Created by test case' };
+		testURI('POST', {
+			path : '/' + TEST_TABLE,
+			data : createMe
+		}, function (body, res){
+			res.statusCode.should.equal(200);
+			body.should.have.property('status');
+			body.status.should.equal(201);
+			body.should.have.property('results');
 			done();
 		});
 	});
