@@ -339,16 +339,51 @@ describe('URIs', function(){
 
 	it('should get the created entry', function(done){
 		insertedId.should.be.ok;
-		testURI('GET', '/'+TEST_TABLE+'/'+insertedId, function( body, res) {
+		testURI('GET', '/'+TEST_TABLE+'/id/'+insertedId, function( body, res) {
 			res.statusCode.should.equal(200);
 			body.should.have.property('status');
 			body.status.should.equal(200);
 			body.should.have.property('results');
 			body.results.length.should.equal(1);
 			body.results[0].should.have.property('id');
-			body.results[0].id.shold.equal( insertedId );
-			body.results[0].text.shold.equal( createMe.text );
+			body.results[0].id.should.equal( insertedId );
+			body.results[0].text.should.equal( createMe.text );
 		});
 		done();
 	});
+
+	var newText = 'Some new text';
+	it('should update an entry', function(done){
+		insertedId.should.be.ok;
+		testURI('PUT', {
+			path: '/'+TEST_TABLE+'/id/'+insertedId,
+			data: { text: newText }
+		}, function( body, res) {
+			res.statusCode.should.equal(200);
+			body.should.have.property('status');
+			body.status.should.equal(200);
+			body.should.have.property('results');
+			body.results.length.should.equal(1);
+			body.results[0].should.have.property('id');
+			body.results[0].id.should.equal( insertedId );
+			body.results[0].text.should.equal( createMe.text );
+		});
+		done();
+	});
+
+	it('should get the updated entry', function(done){
+		insertedId.should.be.ok;
+		testURI('GET', '/'+TEST_TABLE+'/id/'+insertedId, function( body, res) {
+			res.statusCode.should.equal(200);
+			body.should.have.property('status');
+			body.status.should.equal(200);
+			body.should.have.property('results');
+			body.results.length.should.equal(1);
+			body.results[0].should.have.property('id');
+			body.results[0].id.should.equal( insertedId );
+			body.results[0].text.should.equal( newText );
+		});
+		done();
+	});
+
 });
