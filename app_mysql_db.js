@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-var App		= require('./lib/Server');
+var Server	= require('./lib/Server');
 var Model	= require('./lib/Model');
 var View	= require('./lib/View');
 
@@ -13,9 +13,7 @@ var dbConfig = {
 	supportBigNumbers	: true
 };
 
-var model = app = new App.Server(
-	new Model.Model(
-		dbConfig,
-		new View.View
-	)
+var model = app = new Server(
+	new Model( dbConfig ),
+	new View()
 );

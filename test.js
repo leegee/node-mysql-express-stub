@@ -26,27 +26,31 @@ var APP; // The server instance under test.
 
 
 function testURI (method, path, next){
-	var data;
-	if (typeof path != 'string'){
-		if (!path.hasOwnProperty('path') || !path.hasOwnProperty('data'))
-			throw 'If path arg is an object, supply path and data fields';
-		data = path.data;
-		path = path.path;
-	}
-	var req = http.request({
+	var jsonBody;
+	var params = {
 		hostname:	'localhost',
 		port:		Server.DEFAULT_PORT,
-		method:		method,
-		path:		path,
-		headers:	{
-			'Content-type': 'application/json'
+		method:		method
+	};
+	if (typeof path == 'string'){
+		params.path = path;
+	} else {
+		if (! path.hasOwnProperty('path') || !path.hasOwnProperty('data'))
+			throw 'If path arg is an object, supply path and data fields';
+		jsonBody = JSON.stringify( path.data );
+		params.path = path.path;
+		params.headers = {
+			'Content-type':		'application/json',
+			'Content-length':	jsonBody.length
 		}
-	}, function(res) {
+	}
+
+	var req = http.request( params, function(res) {
 		res.setEncoding('utf8');
 	});
 
-	if (data != null){
-		req.write( JSON.stringify(data) );
+	if (jsonBody != null){
+		req.write( jsonBody );
 	}
 
 	req.on('response', function (res) {
@@ -138,8 +142,8 @@ describe('view', function(){
 		done();
 	});
 	it('should return expected struct', function(done){
-		view.formatResults( [], null ).should.have.keys('results');
-		view.formatResults( [], {ERROR:true} ).should.have.keys('results','error');
+		view.formatResults( [], null ).should.have.keys('results', 'status');
+		view.formatResults( [], {ERROR:true} ).should.have.keys('results','error','status');
 		done();
 	});
 });
@@ -313,18 +317,38 @@ describe('URIs', function(){
 		});
 	});
 
+	var insertedId;
+	var createMe = { text: 'Created by test case' };
 	it('should create a new entry', function(done){
-		var createMe = { text: 'Created by test case' };
 		testURI('POST', {
 			path : '/' + TEST_TABLE,
 			data : createMe
 		}, function (body, res){
 			res.statusCode.should.equal(200);
 			body.should.have.property('status');
-			body.status.should.equal(201);
 			body.should.have.property('results');
+			body.results.length.should.equal(1);
+			body.results[0].should.have.property('affectedRows');
+			body.results[0].affectedRows.should.equal(1);
+			body.results[0].should.have.property('insertId');
+			body.status.should.equal(201);
+			insertedId = body.results[0].insertId;
 			done();
 		});
 	});
 
+	it('should get the created entry', function(done){
+		insertedId.should.be.ok;
+		testURI('GET', '/'+TEST_TABLE+'/'+insertedId, function( body, res) {
+			res.statusCode.should.equal(200);
+			body.should.have.property('status');
+			body.status.should.equal(200);
+			body.should.have.property('results');
+			body.results.length.should.equal(1);
+			body.results[0].should.have.property('id');
+			body.results[0].id.shold.equal( insertedId );
+			body.results[0].text.shold.equal( createMe.text );
+		});
+		done();
+	});
 });
