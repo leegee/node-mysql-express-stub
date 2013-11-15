@@ -24,7 +24,6 @@ var dbConfig = {
 
 var APP; // The server instance under test.
 
-
 function testURI (method, path, next){
 	var jsonBody;
 	var params = {
@@ -101,10 +100,10 @@ function dropFixtureTable( dbh, done){
 function createFixtureTable( dbh, done){
 	dbh.query(
 		'CREATE TABLE IF NOT EXISTS '+TEST_TABLE+' ('+
-			'id INT(11) AUTO_INCREMENT, ' +
-			'text TEXT, ' +
+			'id INT(11) AUTO_INCREMENT COMMENT "Auto-incrementing ID", ' +
+			'text TEXT COMMENT "Description", ' +
 			'PRIMARY KEY (id)' +
-		');',
+		') DEFAULT CHARACTER SET utf8 COMMENT "Test table";',
 		function(err, result) {
 			if (err) {
 				console.log(err);
@@ -348,8 +347,8 @@ describe('URIs', function(){
 			body.results[0].should.have.property('id');
 			body.results[0].id.should.equal( insertedId );
 			body.results[0].text.should.equal( createMe.text );
+			done();
 		});
-		done();
 	});
 
 	var newText = 'Some new text';
@@ -361,16 +360,17 @@ describe('URIs', function(){
 		}, function( body, res) {
 			res.statusCode.should.equal(200);
 			body.should.have.property('status');
-			body.status.should.equal(200);
+			body.status.should.equal(201);
 			body.should.have.property('results');
 			body.results.length.should.equal(1);
 			body.results[0].should.have.property('id');
 			body.results[0].id.should.equal( insertedId );
-			body.results[0].text.should.equal( createMe.text );
+			body.results[0].text.should.equal( newText );
+			done();
 		});
-		done();
 	});
 
+/*
 	it('should get the updated entry', function(done){
 		insertedId.should.be.ok;
 		testURI('GET', '/'+TEST_TABLE+'/id/'+insertedId, function( body, res) {
@@ -382,8 +382,21 @@ describe('URIs', function(){
 			body.results[0].should.have.property('id');
 			body.results[0].id.should.equal( insertedId );
 			body.results[0].text.should.equal( newText );
+			done();
 		});
-		done();
 	});
+
+	/*
+	it('should describe a table', function(done){
+		testURI('OPTIONS', '/'+TEST_TABLE, function( body, res) {
+			console.log( body );
+			res.statusCode.should.equal(200);
+			body.should.have.property('status');
+			body.status.should.equal(200);
+			body.should.have.property('results');
+			done();
+		});
+	});
+*/
 
 });
