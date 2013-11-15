@@ -215,7 +215,7 @@ describe('URIs', function(){
 				body.should.not.have.property('error');
 				body.should.have.property('results');
 				body.results.should.be.an.instanceOf(Array);
-				body.results[0].should.have.keys('Tables_in_'+TEST_DATABASE);
+				body.results[0].should.be.type('string');
 				done();
 			});
 		});
