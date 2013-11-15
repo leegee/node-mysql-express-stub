@@ -370,7 +370,6 @@ describe('URIs', function(){
 		});
 	});
 
-/*
 	it('should get the updated entry', function(done){
 		insertedId.should.be.ok;
 		testURI('GET', '/'+TEST_TABLE+'/id/'+insertedId, function( body, res) {
@@ -386,9 +385,8 @@ describe('URIs', function(){
 		});
 	});
 
-	/*
 	it('should describe a table', function(done){
-		testURI('OPTIONS', '/'+TEST_TABLE, function( body, res) {
+		testURI('TRACE', '/'+TEST_TABLE, function( body, res) {
 			console.log( body );
 			res.statusCode.should.equal(200);
 			body.should.have.property('status');
@@ -397,6 +395,5 @@ describe('URIs', function(){
 			done();
 		});
 	});
-*/
 
 });
