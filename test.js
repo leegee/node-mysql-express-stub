@@ -386,8 +386,7 @@ describe('URIs', function(){
 	});
 
 	it('should describe a table', function(done){
-		testURI('TRACE', '/'+TEST_TABLE, function( body, res) {
-			console.log( body );
+		testURI('GET', '/'+TEST_TABLE+'?', function( body, res) {
 			res.statusCode.should.equal(200);
 			body.should.have.property('status');
 			body.status.should.equal(200);
