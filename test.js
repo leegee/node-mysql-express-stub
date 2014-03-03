@@ -14,7 +14,6 @@ var Log4js				= require('log4js');
 var CLEANUP_AFTERWARDS	= true;
 var TEST_DATABASE		= process.env.dbname || 'test';
 var TEST_TABLE			= 'testing';
-var DBH					= null;
 
 var dbConfig = {
 	hostname			: 'localhost',
@@ -40,6 +39,7 @@ function testURI (method, path, next){
 	else {
 		if (! path.hasOwnProperty('path') || !path.hasOwnProperty('data'))
 			throw  new Error('If path arg is an object, supply path and data fields');
+		
 		jsonBody = JSON.stringify( path.data );
 		params.path = path.path;
 		params.headers = {
@@ -77,7 +77,15 @@ function setUpFixtures (app, done) {
 			console.log('Error',err);
 			return;
 		}
-		DBH = dbh;
+
+		if (CLEANUP_AFTERWARDS){
+			after(function (done) {
+				dropFixtureTable( dbh, function(){
+					app.shutdown( done );
+				});
+			});
+		}
+
 		dbh.query('CREATE DATABASE IF NOT EXISTS '+TEST_DATABASE, function(err, result) {
 			if (err) {
 				console.log(err);
@@ -167,21 +175,12 @@ describe('URIs', function(){
 		var view  = new View();
 		if (view===null) throw new Error('Could not instantiate view');
 		var model = new Model(
-			dbConfig,
-			view
+			dbConfig
 		);
 		if (model===null) throw new Error('Could not instantiate model');
 		app = new Server( model, view, Log4js.getLogger() );
 		setUpFixtures( app, done );
 	});
-
-	if (CLEANUP_AFTERWARDS){
-		after(function (done) {
-			dropFixtureTable( DBH, function(){
-				app.shutdown( done );
-			});
-		});
-	}
 
 	it('should be defined', function (done) {
 		app.should.be.type('object');

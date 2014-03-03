@@ -9,7 +9,7 @@ module.exports = function(grunt) {
   grunt.initConfig({
     
     jshint: {
-      src: ['Gruntfile.js', 'app_mysql_db.js', 'test.js', 'lib/*.js'],
+      src: ['*.js', 'lib/*.js'],
       options: {
         curly: false,
         expr: true,
@@ -31,6 +31,15 @@ module.exports = function(grunt) {
         src: ['test.js']
       }
     }
+
+/*    jsdoc : {
+      dist : {
+        src: ['lib/*.js', '*.js'], 
+          options: {
+            destination: 'doc'
+          }
+      }
+    } */
 
   });
 
