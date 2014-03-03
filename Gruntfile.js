@@ -4,6 +4,7 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-mocha-test');
+  grunt.loadNpmTasks('grunt-jsdoc-plugin');
 
   // Project configuration.
   grunt.initConfig({
@@ -32,11 +33,13 @@ module.exports = function(grunt) {
       }
     }
 
-/*    jsdoc : {
+    /*,
+
+    jsdoc : {
       dist : {
-        src: ['lib/*.js', '*.js'], 
+        src: ['lib/*.js'], 
           options: {
-            destination: 'doc'
+            destination: 'out'
           }
       }
     } */

@@ -15,7 +15,7 @@ var CLEANUP_AFTERWARDS	= true;
 var TEST_DATABASE		= process.env.dbname || 'test';
 var TEST_TABLE			= 'testing';
 
-var dbConfig = {
+var DB_CONFIG = {
 	hostname			: 'localhost',
 	user				: process.env.dbuser || 'root',
 	password			: process.env.dbpass || 'password',
@@ -39,7 +39,7 @@ function testURI (method, path, next){
 	else {
 		if (! path.hasOwnProperty('path') || !path.hasOwnProperty('data'))
 			throw  new Error('If path arg is an object, supply path and data fields');
-		
+
 		jsonBody = JSON.stringify( path.data );
 		params.path = path.path;
 		params.headers = {
@@ -175,7 +175,7 @@ describe('URIs', function(){
 		var view  = new View();
 		if (view===null) throw new Error('Could not instantiate view');
 		var model = new Model(
-			dbConfig
+			DB_CONFIG
 		);
 		if (model===null) throw new Error('Could not instantiate model');
 		app = new Server( model, view, Log4js.getLogger() );

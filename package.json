@@ -1,9 +1,13 @@
 {
   "name": "express-mysql-chunked",
   "preferGlobal": false,
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Lee Goddard <2012@leegoddard.net>",
   "description": "An example of sending JSON from MySQL as chunked content",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/leegee/node-mysql-express-stub"
+  },
   "files": [
     "./lib/"
   ],
@@ -23,6 +27,7 @@
     "grunt": "~0.4.2",
     "grunt-contrib-jshint": "~0.8.0",
     "grunt-mocha-test": "~0.9.4",
-    "log4js": "~0.6.10"
+    "log4js": "~0.6.10",
+    "grunt-jsdoc-plugin": "~0.1.4"
   }
 }
