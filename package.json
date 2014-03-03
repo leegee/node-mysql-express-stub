@@ -4,19 +4,23 @@
   "version": "0.0.1",
   "author": "Lee Goddard <2012@leegoddard.net>",
   "description": "An example of sending JSON from MySQL as chunked content",
-  "files": ["./lib/"],
+  "files": [
+    "./lib/"
+  ],
   "scripts": {
     "start": "node app_mysql_db.js",
     "test": "mocha"
   },
   "main": "./app_mysql_db.js",
-  "dependencies" : {
-    "express"   : "3.4.4",
-    "mysql" :  "2.0.0-alpha9"
+  "dependencies": {
+    "express": "3.4.4",
+    "mysql": "2.0.0-alpha9"
   },
   "analyze": false,
   "devDependencies": {
-	"mocha" : "1.14.0",
-	"should": "2.1.0"
+    "mocha": "1.14.0",
+    "should": "2.1.0",
+    "grunt": "~0.4.2",
+    "grunt-contrib-jshint": "~0.8.0"
   }
 }

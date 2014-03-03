@@ -1,3 +1,5 @@
+/*jslint node: true */
+
 /* mocha tests */
 
 var http				= require('http');
@@ -13,10 +15,10 @@ var TEST_TABLE			= 'testing';
 var DBH					= null;
 
 var dbConfig = {
-	host     			: 'localhost',
-	user     			: process.env.dbuser || 'root',
-	password 			: process.env.dbpass || 'password',
-	database 			: TEST_DATABASE,
+	hostname			: 'localhost',
+	user				: process.env.dbuser || 'root',
+	password			: process.env.dbpass || 'password',
+	Database			: TEST_DATABASE,
 	insecureAuth		: process.env.dbpass? false : true,
 	connectionLimit		: 20,
 	supportBigNumbers	: true
@@ -31,7 +33,7 @@ function testURI (method, path, next){
 		port:		Server.DEFAULT_PORT,
 		method:		method
 	};
-	if (typeof path == 'string'){
+	if (typeof path === 'string'){
 		params.path = path;
 	} else {
 		if (! path.hasOwnProperty('path') || !path.hasOwnProperty('data'))
@@ -41,14 +43,14 @@ function testURI (method, path, next){
 		params.headers = {
 			'Content-type':		'application/json',
 			'Content-length':	jsonBody.length
-		}
+		};
 	}
 
 	var req = http.request( params, function(res) {
 		res.setEncoding('utf8');
 	});
 
-	if (jsonBody != null){
+	if (jsonBody !== null){
 		req.write( jsonBody );
 	}
 
@@ -65,11 +67,11 @@ function testURI (method, path, next){
 	});
 
 	req.end();
-};
+}
 
 function setUpFixtures (done) {
 	APP.model.pool.getConnection(function(err, dbh) {
-	    if (err) {
+		if (err) {
 			console.log('Error',err);
 			return;
 		}
@@ -122,7 +124,7 @@ function createFixtureTable( dbh, done){
 }
 
 function populateFixtures(dbh, done, i){
-	if (i==null) i=0;
+	if (i===null) i=0;
 	dbh.query('INSERT INTO '+TEST_TABLE+' (text) VALUES (?)', [ "Testing " + new Date() ], function(err,result){
 		if (err) {
 			console.log("Error inserting fixture",err);
@@ -157,12 +159,12 @@ describe('app config', function(){
 describe('URIs', function(){
 	before (function (done) {
 		var view  = new View();
-		if (view==null) throw 'Could not instantiate view';
+		if (view===null) throw 'Could not instantiate view';
 		var model = new Model(
 			dbConfig,
 			new View()
 		);
-		if (model==null) throw 'Could not instantiate model';
+		if (model===null) throw 'Could not instantiate model';
 		APP = new Server( model, view );
 		setUpFixtures( done );
 	});
@@ -228,7 +230,7 @@ describe('URIs', function(){
 				body.should.have.property('results');
 				body.results.length.ok;
 				done();
-			})
+			});
 		}
 	);
 
@@ -262,9 +264,9 @@ describe('URIs', function(){
 
 	it('should select by two column and column value', function (done) {
 		existingRecord.should.be.an.instanceOf( Object );
-		var path = '/'+TEST_TABLE
-			+ '/id/' + existingRecord.id
-			+ '/text/' + encodeURI( existingRecord.text );
+		var path = '/'+TEST_TABLE +
+			'/id/' + existingRecord.id +
+			'/text/' + encodeURI( existingRecord.text );
 
 		testURI('GET', path, function(body){
 			body.should.not.have.property('error');
@@ -276,7 +278,7 @@ describe('URIs', function(){
 	});
 
 	var deletePath = function(existingRecord){
-		return '/'+TEST_TABLE + '/id/' + existingRecord.id
+		return '/' + TEST_TABLE + '/id/' + existingRecord.id;
 	};
 
 	it('should delete by column value', function (done) {
