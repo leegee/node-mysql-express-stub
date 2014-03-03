@@ -9,7 +9,7 @@ var Server				= require('./lib/Server');
 var Model				= require('./lib/Model');
 var View				= require('./lib/View');
 
-var CLEANUP_AFTERWARDS	= false;
+var CLEANUP_AFTERWARDS	= true;
 var TEST_DATABASE		= process.env.dbname || 'test';
 var TEST_TABLE			= 'testing';
 var DBH					= null;
@@ -18,13 +18,13 @@ var dbConfig = {
 	hostname			: 'localhost',
 	user				: process.env.dbuser || 'root',
 	password			: process.env.dbpass || 'password',
-	Database			: TEST_DATABASE,
+	database			: TEST_DATABASE,
 	insecureAuth		: process.env.dbpass? false : true,
 	connectionLimit		: 20,
 	supportBigNumbers	: true
 };
 
-var APP; // The server instance under test.
+var APP; // The application instance under test.
 
 function testURI (method, path, next){
 	var jsonBody;
@@ -35,7 +35,8 @@ function testURI (method, path, next){
 	};
 	if (typeof path === 'string'){
 		params.path = path;
-	} else {
+	} 
+	else {
 		if (! path.hasOwnProperty('path') || !path.hasOwnProperty('data'))
 			throw 'If path arg is an object, supply path and data fields';
 		jsonBody = JSON.stringify( path.data );
@@ -50,7 +51,7 @@ function testURI (method, path, next){
 		res.setEncoding('utf8');
 	});
 
-	if (jsonBody !== null){
+	if (typeof jsonBody !== 'undefined'){
 		req.write( jsonBody );
 	}
 
@@ -111,7 +112,7 @@ function createFixtureTable( dbh, done){
 				console.log(err);
 				throw err;
 			}
-			console.log("Table created");
+			console.log( TEST_TABLE+" test table created");
 			dbh.query('TRUNCATE '+TEST_TABLE, function(err,result){
 				if (err) {
 					console.log("Cannot truncate",err);
@@ -131,7 +132,10 @@ function populateFixtures(dbh, done, i){
 			throw err;
 		}
 		if (i<10) populateFixtures(dbh, done, ++i);
-		else done();
+		else {
+			done();
+			console.info('Created fixtures.');
+		}
 	});
 }
 
@@ -185,13 +189,13 @@ describe('URIs', function(){
 		done();
 	});
 
-	it('should be listening at localhost:3333 via http.get method', function (done) {
+	it('should be listening at localhost:3000 via http.get method', function (done) {
 		http.get('http://localhost:3000/', function (res) {
 			res.statusCode.should.be.equal(200);
 			done();
 		});
 	});
-	it('should be listening at localhost:3333 via test func', function (done) {
+	it('should be listening at localhost:3000 via test func', function (done) {
 		testURI('GET','/', function (body, res) {
 			res.statusCode.should.be.equal(200);
 			done();
@@ -199,7 +203,7 @@ describe('URIs', function(){
 	});
 
 	it('should error for a non-existant table', function (done) {
-		testURI('GET','/Notable'+(new Date().getTime()), function (body,res) {
+		testURI('GET','/NoSuchTable'+(new Date().getTime()), function (body,res) {
 			res.statusCode.should.be.equal(200);
 			body.should.have.property('error');
 			body.error.should.have.keys('errno', 'code', 'sqlState', 'index');
