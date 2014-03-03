@@ -8,7 +8,7 @@
     "./lib/"
   ],
   "scripts": {
-    "start": "node app_mysql_db.js",
+    "start": "node eg/app_mysql_db.js",
     "test": "mocha"
   },
   "main": "./app_mysql_db.js",
