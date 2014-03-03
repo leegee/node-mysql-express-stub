@@ -3,6 +3,7 @@
 var Server	= require('./lib/Server');
 var Model	= require('./lib/Model');
 var View	= require('./lib/View');
+var log4js	= require('log4js');
 
 var dbConfig = {
 	host				: 'localhost',
@@ -16,5 +17,6 @@ var dbConfig = {
 
 new Server(
 	new Model( dbConfig ),
-	new View()
+	new View(),
+	log4js.getLogger()
 );

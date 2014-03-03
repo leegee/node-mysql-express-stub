@@ -9,6 +9,8 @@ var Server				= require('./lib/Server');
 var Model				= require('./lib/Model');
 var View				= require('./lib/View');
 
+var Log4js				= require('log4js');
+
 var CLEANUP_AFTERWARDS	= true;
 var TEST_DATABASE		= process.env.dbname || 'test';
 var TEST_TABLE			= 'testing';
@@ -24,7 +26,6 @@ var dbConfig = {
 	supportBigNumbers	: true
 };
 
-var APP; // The application instance under test.
 
 function testURI (method, path, next){
 	var jsonBody;
@@ -38,7 +39,7 @@ function testURI (method, path, next){
 	} 
 	else {
 		if (! path.hasOwnProperty('path') || !path.hasOwnProperty('data'))
-			throw 'If path arg is an object, supply path and data fields';
+			throw  new Error('If path arg is an object, supply path and data fields');
 		jsonBody = JSON.stringify( path.data );
 		params.path = path.path;
 		params.headers = {
@@ -70,8 +71,8 @@ function testURI (method, path, next){
 	req.end();
 }
 
-function setUpFixtures (done) {
-	APP.model.pool.getConnection(function(err, dbh) {
+function setUpFixtures (app, done) {
+	app.model.pool.getConnection(function(err, dbh) {
 		if (err) {
 			console.log('Error',err);
 			return;
@@ -161,31 +162,32 @@ describe('app config', function(){
 });
 
 describe('URIs', function(){
+	var app;
 	before (function (done) {
 		var view  = new View();
-		if (view===null) throw 'Could not instantiate view';
+		if (view===null) throw new Error('Could not instantiate view');
 		var model = new Model(
 			dbConfig,
-			new View()
+			view
 		);
-		if (model===null) throw 'Could not instantiate model';
-		APP = new Server( model, view );
-		setUpFixtures( done );
+		if (model===null) throw new Error('Could not instantiate model');
+		app = new Server( model, view, Log4js.getLogger() );
+		setUpFixtures( app, done );
 	});
 
 	if (CLEANUP_AFTERWARDS){
 		after(function (done) {
 			dropFixtureTable( DBH, function(){
-				APP.shutdown( done );
+				app.shutdown( done );
 			});
 		});
 	}
 
 	it('should be defined', function (done) {
-		APP.should.be.type('object');
-		APP.should.be.an.instanceOf(Object);
-		APP.should.have.property('model');
-		APP.model.should.have.property('pool');
+		app.should.be.type('object');
+		app.should.be.an.instanceOf(Object);
+		app.should.have.property('model');
+		app.model.should.have.property('pool');
 		done();
 	});
 
