@@ -28,6 +28,7 @@
     "grunt-contrib-jshint": "~0.8.0",
     "grunt-mocha-test": "~0.9.4",
     "log4js": "~0.6.10",
-    "grunt-jsdoc-plugin": "~0.1.4"
+    "grunt-jsdoc-plugin": "~0.1.4",
+    "grunt-jsdoc": "~0.5.1"
   }
 }

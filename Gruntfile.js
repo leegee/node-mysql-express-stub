@@ -4,7 +4,7 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-mocha-test');
-  grunt.loadNpmTasks('grunt-jsdoc-plugin');
+  grunt.loadNpmTasks('grunt-jsdoc');
 
   // Project configuration.
   grunt.initConfig({
@@ -31,9 +31,7 @@ module.exports = function(grunt) {
         },
         src: ['test.js']
       }
-    }
-
-    /*,
+    },
 
     jsdoc : {
       dist : {
@@ -42,11 +40,11 @@ module.exports = function(grunt) {
             destination: 'out'
           }
       }
-    } */
+    }
 
   });
 
   // Default task(s).
-  grunt.registerTask('default', ['jshint', 'mochaTest']);
+  grunt.registerTask('default', ['jshint', 'mochaTest', 'jsdoc']);
 
 };
